@@ -49,6 +49,9 @@ def show_profile_image(username):
 
 
 def show_saved_profile_images(dic):
+    if len(dic.keys()) == 0:
+        print("first add a user with option '2'")
+        return False
     count = 1
     for user in dic:
         print('%d.%s' % (count, user))
@@ -136,6 +139,8 @@ if option == "1":
     old_dic = pickle_file_load("dic.pickle")
 
     username = show_saved_profile_images(old_dic)
+    if(username == False):
+        exit()
     new_dic = {}
 
     a_website = get_url(username)
