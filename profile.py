@@ -176,7 +176,7 @@ elif option == "5":
 
     while True:
         clear_screen()
-        check_question = input("for archiving all users enter 'a'\nelse\n for archiving single user enter s\n")
+        check_question = input("for archiving all users enter 'a'\nelse\n for archiving single user enter 's'\n")
         if check_question == "s":
             username = show_saved_profile_images(old_dic)
             archive = Archive(username)
