@@ -1,6 +1,5 @@
 # this script downloads profile picture of a person from instagram
 
-import click
 import os
 import pickle
 import urllib.request
@@ -74,7 +73,7 @@ def check_profile_image_change(username, old_url, new_url):
     if new_image_name == old_image_name:
         return False
     else:
-        return False
+        return True
 
 
 def save_profile_url(username, new_url, dic):
