@@ -7,6 +7,9 @@ from lxml import html
 from bs4 import BeautifulSoup
 import webbrowser
 from pyfiglet import Figlet
+import re
+import json
+import requests
 
 os.system('clear')
 
@@ -26,11 +29,16 @@ def pickle_file_dump(name, dic):
 
 def get_url(username):
     url = "https://www.instagram.com/" + username + '/'
-    page = (urllib.request.urlopen(url).read())
-    soup = BeautifulSoup(page, 'html.parser')
-    value = (soup.find_all('meta', property="og:image")[0])
-    a_website = value['content']
+    r = requests.get(url)
+    soup = BeautifulSoup(r.content,"lxml")
+    scripts = soup.find_all('script', type="text/javascript", text=re.compile('window._sharedData'))
+    stringified_json = scripts[0].get_text().replace('window._sharedData = ', '')[:-1]
+
+    dic_file = (json.loads(stringified_json)['entry_data']['ProfilePage'][0])
+
+    a_website = (dic_file["graphql"]["user"]["profile_pic_url_hd"])
     return a_website
+
 
 
 def save_profile_image(username, a_website, directory=""):
