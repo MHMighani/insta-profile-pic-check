@@ -1,5 +1,3 @@
-# this script downloads profile picture of a person from instagram
-
 import os
 import pickle
 import urllib.request
@@ -10,9 +8,7 @@ from pyfiglet import Figlet
 import re
 import json
 import requests
-
-os.system('clear')
-
+import sys
 
 def pickle_file_load(name):
     file = open(name, "rb")
@@ -45,7 +41,7 @@ def save_profile_image(username, a_website, directory=""):
     if directory != "":
         save_adress = directory + "/" + username
     else:
-        save_adress = username
+        save_adress = username    
     f = open(save_adress + '.jpg', 'wb')
     f.write(urllib.request.urlopen(a_website).read())
     f.close()
@@ -56,9 +52,6 @@ def show_profile_image(username):
 
 
 def show_saved_profile_images(dic):
-    if len(dic.keys()) == 0:
-        print("first add a user with option '2'")
-        return False
     count = 1
     for user in dic:
         print('%d.%s' % (count, user))
@@ -100,6 +93,7 @@ def delete_a_user():
 # should modify and make better
 class Archive():
     def __init__(self, username):
+        self.username = username
         dirname1 = "archive"
         list1 = os.listdir()
         if dirname1 not in list1:
@@ -110,7 +104,7 @@ class Archive():
             os.mkdir(self.dirname2)
 
     def archive_profile_image(self):
-        url = get_url(username)
+        url = get_url(self.username)
         user_image_name = get_image_adress(url)
         save_profile_image(user_image_name, url, self.dirname2)
 
@@ -127,27 +121,13 @@ def get_image_adress(url):
 
 def clear_screen():
     os.system("clear")
+              
+#--------------------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------
-if("dic.pickle" not in os.listdir()):
-    dic = {}
-    pickle_file_dump("dic.pickle",dic)
-
-
-fig = Figlet(font='doom')
-print(fig.renderText("profile check"))
-
-
-option = input(
-    "If you want to check saved user enter 1\nTo add a new user enter 2\nTo check all users enter 3"
-    "\nTo check a delete a user enter 4\nTo archive a profile pic 5\nNow enter your option > ")
-
-if option == "1":
+def option_one():
     old_dic = pickle_file_load("dic.pickle")
 
     username = show_saved_profile_images(old_dic)
-    if(username == False):
-        exit()
     new_dic = {}
 
     a_website = get_url(username)
@@ -159,16 +139,17 @@ if option == "1":
         save_profile_url(username, a_website, old_dic)
     else:
         print("profile image is not changed")
+        input("Press any key! ")
 
-
-elif option == "2":
+def option_two():
     new_username = input("enter new username: ")
     a_website = get_url(new_username)
     save_profile_image(new_username, a_website)
     show_profile_image(new_username)
     add_new_user(new_username, a_website)
+    os.remove(new_username + '.jpg')
 
-elif option == "3":
+def option_three():
     old_dic = pickle_file_load("dic.pickle")
     for username in old_dic:
         a_website = get_url(username)
@@ -179,13 +160,11 @@ elif option == "3":
             show_profile_image(username)
             save_profile_url(username, a_website, old_dic)
 
-elif option == "4":
+def option_four():
     delete_a_user()
 
-
-elif option == "5":
+def option_five():
     old_dic = pickle_file_load("dic.pickle")
-
     while True:
         clear_screen()
         check_question = input("for archiving all users enter 'a'\nelse\n for archiving single user enter 's'\n")
@@ -199,3 +178,14 @@ elif option == "5":
                 archive = Archive(username)
                 archive.archive_profile_image()
             break
+
+def exit():
+    sys.exit()
+
+
+#--------------------------------------------------------------------------------------------------------------
+
+
+
+if __name__ == '__main__':
+    main()
