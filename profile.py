@@ -86,7 +86,6 @@ def delete_a_user():
     old_dic = pickle_file_load("dic.pickle")
     username = show_saved_profile_images(old_dic)
     old_dic.pop(username)
-    print(list(old_dic))
     pickle_file_dump("dic.pickle", old_dic)
 
 
@@ -152,32 +151,25 @@ def option_two():
 def option_three():
     old_dic = pickle_file_load("dic.pickle")
     for username in old_dic:
-        a_website = get_url(username)
-        old_url = old_dic[username]
-        if check_profile_image_change(username, old_url, a_website):
-            print("%s profile is changed!" % username)
-            save_profile_image(username, a_website)
-            show_profile_image(username)
-            save_profile_url(username, a_website, old_dic)
-
+        try:
+            print(username)
+            a_website = get_url(username)
+            old_url = old_dic[username]
+            result = check_profile_image_change(username, old_url, a_website)
+            if check_profile_image_change(username, old_url, a_website):
+                print("%s profile is changed!" % username)
+                save_profile_image(username, a_website)
+                show_profile_image(username)
+                save_profile_url(username, a_website, old_dic)
+                archive = Archive(username)
+                archive.archive_profile_image()  
+        except:
+        	print("%s username has changed"%username)        
+        	pass
+    
 def option_four():
     delete_a_user()
 
-def option_five():
-    old_dic = pickle_file_load("dic.pickle")
-    while True:
-        clear_screen()
-        check_question = input("for archiving all users enter 'a'\nelse\n for archiving single user enter 's'\n")
-        if check_question == "s":
-            username = show_saved_profile_images(old_dic)
-            archive = Archive(username)
-            archive.archive_profile_image()
-            break
-        elif check_question == "a":
-            for username in old_dic:
-                archive = Archive(username)
-                archive.archive_profile_image()
-            break
 
 def exit():
     sys.exit()
