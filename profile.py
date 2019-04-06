@@ -9,6 +9,8 @@ import re
 import json
 import requests
 import sys
+import shutil
+
 
 def pickle_file_load(name):
     file = open(name, "rb")
@@ -26,9 +28,11 @@ def pickle_file_dump(name, dic):
 def get_url(username):
     url = "https://www.instagram.com/" + username + '/'
     r = requests.get(url)
-    soup = BeautifulSoup(r.content,"lxml")
-    scripts = soup.find_all('script', type="text/javascript", text=re.compile('window._sharedData'))
-    stringified_json = scripts[0].get_text().replace('window._sharedData = ', '')[:-1]
+    soup = BeautifulSoup(r.content, "lxml")
+    scripts = soup.find_all('script', type="text/javascript",
+                            text=re.compile('window._sharedData'))
+    stringified_json = scripts[0].get_text().replace(
+        'window._sharedData = ', '')[:-1]
 
     dic_file = (json.loads(stringified_json)['entry_data']['ProfilePage'][0])
 
@@ -36,19 +40,14 @@ def get_url(username):
     return a_website
 
 
-
 def save_profile_image(username, a_website, directory=""):
     if directory != "":
         save_adress = directory + "/" + username
     else:
-        save_adress = username    
+        save_adress = username
     f = open(save_adress + '.jpg', 'wb')
     f.write(urllib.request.urlopen(a_website).read())
     f.close()
-
-
-def show_profile_image(username):
-    os.system('feh ' + username + '.jpg')
 
 
 def show_saved_profile_images(dic):
@@ -56,7 +55,8 @@ def show_saved_profile_images(dic):
     for user in dic:
         print('%d.%s' % (count, user))
         count += 1
-    number_input = int(input("please enter number of the user that you want to check >  "))
+    number_input = int(
+        input("please enter number of the user that you want to check >  "))
     username = list(dic.keys())[number_input - 1]
     return username
 
@@ -85,11 +85,22 @@ def save_profile_url(username, new_url, dic):
 def delete_a_user():
     old_dic = pickle_file_load("dic.pickle")
     username = show_saved_profile_images(old_dic)
+
+    while True:
+        option = input(
+            "Do you want to delete user images from archive too?? (Y/N) > ")
+        if option == "Y" or option == "y":
+            shutil.rmtree("archive/" + username)
+            break
+        elif option == "N" or option == "n":
+            break
+        else:
+            pass
+
     old_dic.pop(username)
     pickle_file_dump("dic.pickle", old_dic)
 
 
-# should modify and make better
 class Archive():
     def __init__(self, username):
         self.username = username
@@ -106,9 +117,10 @@ class Archive():
         url = get_url(self.username)
         user_image_name = get_image_adress(url)
         save_profile_image(user_image_name, url, self.dirname2)
+        os.system("feh archive/" + self.username +
+                  "/" + user_image_name + ".jpg")
 
 
-# this function returns profile image name
 def get_image_adress(url):
 
     url_list = url.split('/')[8].split('_')[0:3]
@@ -120,8 +132,9 @@ def get_image_adress(url):
 
 def clear_screen():
     os.system("clear")
-              
+
 #--------------------------------------------------------------------------------------------------------------
+
 
 def option_one():
     old_dic = pickle_file_load("dic.pickle")
@@ -133,20 +146,22 @@ def option_one():
     old_url = old_dic[username]
     if check_profile_image_change(username, old_url, a_website):
         print("profile image is changed")
-        save_profile_image(username, a_website)
-        show_profile_image(username)
         save_profile_url(username, a_website, old_dic)
+        archive = Archive(username)
+        archive.archive_profile_image()
+
     else:
         print("profile image is not changed")
         input("Press any key! ")
 
+
 def option_two():
     new_username = input("enter new username: ")
     a_website = get_url(new_username)
-    save_profile_image(new_username, a_website)
-    show_profile_image(new_username)
+    archive = Archive(new_username)
+    archive.archive_profile_image()
     add_new_user(new_username, a_website)
-    os.remove(new_username + '.jpg')
+
 
 def option_three():
     old_dic = pickle_file_load("dic.pickle")
@@ -158,15 +173,14 @@ def option_three():
             result = check_profile_image_change(username, old_url, a_website)
             if check_profile_image_change(username, old_url, a_website):
                 print("%s profile is changed!" % username)
-                save_profile_image(username, a_website)
-                show_profile_image(username)
                 save_profile_url(username, a_website, old_dic)
                 archive = Archive(username)
-                archive.archive_profile_image()  
+                archive.archive_profile_image()
         except:
-        	print("%s username has changed"%username)        
-        	pass
-    
+            print("%s username has changed" % username)
+            pass
+
+
 def option_four():
     delete_a_user()
 
@@ -174,9 +188,7 @@ def option_four():
 def exit():
     sys.exit()
 
-
 #--------------------------------------------------------------------------------------------------------------
-
 
 
 if __name__ == '__main__':
