@@ -184,6 +184,11 @@ def option_three():
 def option_four():
     delete_a_user()
 
+def option_five():
+    dic = pickle_file_load("dic.pickle")
+    username = show_saved_profile_images(dic)
+
+    os.system("feh -F archive/" + username)
 
 def exit():
     sys.exit()
