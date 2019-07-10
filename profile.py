@@ -136,10 +136,10 @@ def get_image_adress(url):
 def clear_screen():
     os.system("clear")
 
-def bioGetFunction(userName):
+def bioGetFunction(userName,newBioText):
     dic2 = pickle_file_load("dic2.pickle")
     savedUsers = dic2.keys()
-    newBioText = get_url(userName)[1]
+    # newBioText = get_url(userName)[1]
     if userName not in savedUsers:
         dic2[userName] = newBioText
         print("Bio--> " + newBioText)
@@ -185,7 +185,7 @@ def option_three():
     for username in old_dic:
         try:
             print(username)
-            a_website = get_url(username)[0]
+            (a_website,newBioText) = get_url(username)
             old_url = old_dic[username]
             result = check_profile_image_change(username, old_url, a_website)
             if check_profile_image_change(username, old_url, a_website):
@@ -197,7 +197,7 @@ def option_three():
         except:
             print("%s username has changed" % username)
             pass
-        bioGetFunction(username)
+        bioGetFunction(username,newBioText)
 
 
 def option_four():
