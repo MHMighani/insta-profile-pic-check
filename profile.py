@@ -36,8 +36,11 @@ def get_url(username):
 
     dic_file = (json.loads(stringified_json)['entry_data']['ProfilePage'][0])
 
-    a_website = (dic_file["graphql"]["user"]["profile_pic_url_hd"])
-    return a_website
+    profilePicLinkAddress = (dic_file["graphql"]["user"]["profile_pic_url_hd"])
+
+    userBio = (dic_file["graphql"]["user"]["biography"])
+    return profilePicLinkAddress,userBio
+    # return dic_file
 
 
 def save_profile_image(username, a_website, directory=""):
@@ -114,7 +117,7 @@ class Archive():
             os.mkdir(self.dirname2)
 
     def archive_profile_image(self):
-        url = get_url(self.username)
+        url = get_url(self.username)[0]
         user_image_name = get_image_adress(url)
         save_profile_image(user_image_name, url, self.dirname2)
         os.system("feh archive/" + self.username +
@@ -133,6 +136,20 @@ def get_image_adress(url):
 def clear_screen():
     os.system("clear")
 
+def bioGetFunction(userName):
+    dic2 = pickle_file_load("dic2.pickle")
+    savedUsers = dic2.keys()
+    newBioText = get_url(userName)[1]
+    if userName not in savedUsers:
+        dic2[userName] = newBioText
+        print("Bio--> " + newBioText)
+    else:
+        oldBioText = dic2[userName]
+        if oldBioText != newBioText:
+            print(userName+" has changed Bio")
+            print("this is new Bio --->  ",newBioText)
+            dic2[userName] = newBioText
+    pickle_file_dump("dic2.pickle",dic2)
 #--------------------------------------------------------------------------------------------------------------
 
 
@@ -142,7 +159,7 @@ def option_one():
     username = show_saved_profile_images(old_dic)
     new_dic = {}
 
-    a_website = get_url(username)
+    a_website = get_url(username)[0]
     old_url = old_dic[username]
     if check_profile_image_change(username, old_url, a_website):
         print("profile image is changed")
@@ -157,7 +174,7 @@ def option_one():
 
 def option_two():
     new_username = input("enter new username: ")
-    a_website = get_url(new_username)
+    a_website = get_url(new_username)[0]
     archive = Archive(new_username)
     archive.archive_profile_image()
     add_new_user(new_username, a_website)
@@ -168,7 +185,7 @@ def option_three():
     for username in old_dic:
         try:
             print(username)
-            a_website = get_url(username)
+            a_website = get_url(username)[0]
             old_url = old_dic[username]
             result = check_profile_image_change(username, old_url, a_website)
             if check_profile_image_change(username, old_url, a_website):
@@ -176,9 +193,11 @@ def option_three():
                 save_profile_url(username, a_website, old_dic)
                 archive = Archive(username)
                 archive.archive_profile_image()
+
         except:
             print("%s username has changed" % username)
             pass
+        bioGetFunction(username)
 
 
 def option_four():
@@ -190,6 +209,14 @@ def option_five():
 
     os.system("feh -F archive/" + username)
 
+def option_six():
+    dic2 = pickle_file_load("dic2.pickle")
+    with open("bios.txt","w") as file:
+        for key in dic2:
+            file.write("\n"+"**********" + key + "************"+"\n")
+            file.write(dic2[key])
+    os.system("gedit bios.txt")
+
 def exit():
     sys.exit()
 
@@ -197,4 +224,4 @@ def exit():
 
 
 if __name__ == '__main__':
-    main()
+    pass
