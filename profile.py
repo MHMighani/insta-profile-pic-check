@@ -139,17 +139,29 @@ def clear_screen():
 def bioGetFunction(userName,newBioText):
     dic2 = pickle_file_load("dic2.pickle")
     savedUsers = dic2.keys()
-    # newBioText = get_url(userName)[1]
     if userName not in savedUsers:
         dic2[userName] = newBioText
         print("Bio--> " + newBioText)
+        saveBioInFolder(userName,dic2)
     else:
         oldBioText = dic2[userName]
         if oldBioText != newBioText:
             print(userName+" has changed Bio")
             print("this is new Bio --->  ",newBioText)
             dic2[userName] = newBioText
+            saveBioInFolder(userName,dic2)
     pickle_file_dump("dic2.pickle",dic2)
+
+#saves new bio in related folder for a user
+def saveBioInFolder(user,dic2):
+    directory = "archive/" + user + '/'
+    name = user + "bio.txt"
+    if name not in os.listdir(directory):
+        with open(directory+name,"w") as file:
+            file.write(dic2[user])
+    else:
+        with open(directory+name,"a") as file:
+            file.write("\n"+dic2[user])
 #--------------------------------------------------------------------------------------------------------------
 
 
@@ -159,18 +171,22 @@ def option_one():
     username = show_saved_profile_images(old_dic)
     new_dic = {}
 
-    a_website = get_url(username)[0]
+    (a_website,newBioText) = get_url(username)
+    bioGetFunction(username,newBioText)
     old_url = old_dic[username]
-    if check_profile_image_change(username, old_url, a_website):
-        print("profile image is changed")
-        save_profile_url(username, a_website, old_dic)
-        archive = Archive(username)
-        archive.archive_profile_image()
-
+    try:
+        if check_profile_image_change(username, old_url, a_website):
+            print("profile image is changed")
+            save_profile_url(username, a_website, old_dic)
+            archive = Archive(username)
+            archive.archive_profile_image()
+        else:
+            print("profile image is not changed")
+            input("Press any key! ")
+    except IndexError:
+        print("%s doesn\'t have profile pic "%username)
     else:
-        print("profile image is not changed")
-        input("Press any key! ")
-
+        print("%s has probably changed username"%username)
 
 def option_two():
     new_username = input("enter new username: ")
@@ -184,7 +200,6 @@ def option_three():
     old_dic = pickle_file_load("dic.pickle")
     for username in old_dic:
         try:
-            print(username)
             (a_website,newBioText) = get_url(username)
             old_url = old_dic[username]
             result = check_profile_image_change(username, old_url, a_website)
@@ -193,10 +208,10 @@ def option_three():
                 save_profile_url(username, a_website, old_dic)
                 archive = Archive(username)
                 archive.archive_profile_image()
-
+        except IndexError:
+            print("%s doesn't have profile pic"%username)
         except:
-            print("%s username has changed" % username)
-            pass
+            print("%s username has probably changed"%username)
         bioGetFunction(username,newBioText)
 
 
