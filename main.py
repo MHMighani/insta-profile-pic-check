@@ -8,7 +8,7 @@ if numberOfArguments == 2:
     choice = sys.argv[1]
     if str(choice)=="fast":
         option_three()
-
+        input("Press any key")
 menuItems = [
     {'Check one particular saved user' : option_one},
     {'Add a new user' : option_two},
