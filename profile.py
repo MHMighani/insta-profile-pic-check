@@ -161,6 +161,7 @@ def saveBioInFolder(user,dic2):
             file.write(dic2[user])
     else:
         with open(directory+name,"a") as file:
+            file.write("*"*100)
             file.write("\n"+dic2[user])
 #--------------------------------------------------------------------------------------------------------------
 
@@ -200,6 +201,7 @@ def option_three():
     old_dic = pickle_file_load("dic.pickle")
     for username in old_dic:
         try:
+            # print(username)
             (a_website,newBioText) = get_url(username)
             old_url = old_dic[username]
             result = check_profile_image_change(username, old_url, a_website)

@@ -1,4 +1,13 @@
 from profile import *
+import sys
+
+#This is for argument passing for fast checking all pages
+#I used this option for fast page checking in my startup
+numberOfArguments = len(sys.argv)
+if numberOfArguments == 2:
+    choice = sys.argv[1]
+    if str(choice)=="fast":
+        option_three()
 
 menuItems = [
     {'Check one particular saved user' : option_one},
