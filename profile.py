@@ -10,7 +10,7 @@ import json
 import requests
 import sys
 import shutil
-
+import datetime
 
 def pickle_file_load(name):
     file = open(name, "rb")
@@ -84,6 +84,11 @@ def save_profile_url(username, new_url, dic):
     dic[username] = new_url
     pickle_file_dump("dic.pickle", dic)
 
+def deleteFromBioDic(username):
+    dic = pickle_file_load("dic2.pickle")
+    del dic[username]
+    pickle_file_dump("dic2.pickle",dic)
+
 
 def delete_a_user():
     old_dic = pickle_file_load("dic.pickle")
@@ -91,9 +96,10 @@ def delete_a_user():
 
     while True:
         option = input(
-            "Do you want to delete user images from archive too?? (Y/N) > ")
+            "Do you want to delete user images and bio from archive too?? (Y/N) > ")
         if option == "Y" or option == "y":
             shutil.rmtree("archive/" + username)
+            deleteFromBioDic(username)
             break
         elif option == "N" or option == "n":
             break
@@ -156,13 +162,28 @@ def bioGetFunction(userName,newBioText):
 def saveBioInFolder(user,dic2):
     directory = "archive/" + user + '/'
     name = user + "bio.txt"
+    date = str(datetime.datetime.now().date())
     if name not in os.listdir(directory):
         with open(directory+name,"w") as file:
+            file.write(date)
+            file.write("\n\n")
             file.write(dic2[user])
     else:
         with open(directory+name,"a") as file:
             file.write("*"*100)
+            file.write("\n" + date + "\n")
             file.write("\n"+dic2[user])
+
+def continueQuestionFunction(question):
+    while True:
+        answer = input("Do you want to continue %s (Y/N)"%question)
+        answer = answer.lower()
+        if answer == "y":
+            return 1
+        elif answer == "n":
+            return 0
+        else:
+            print("Not valid input")
 #--------------------------------------------------------------------------------------------------------------
 
 
@@ -191,11 +212,13 @@ def option_one():
 
 def option_two():
     new_username = input("enter new username: ")
-    a_website = get_url(new_username)[0]
+
+    (a_website,newBioText) = get_url(new_username)
+
     archive = Archive(new_username)
     archive.archive_profile_image()
     add_new_user(new_username, a_website)
-
+    bioGetFunction(new_username,newBioText)
 
 def option_three():
     old_dic = pickle_file_load("dic.pickle")
@@ -233,6 +256,23 @@ def option_six():
             file.write("\n"+"**********" + key + "************"+"\n")
             file.write(dic2[key])
     os.system("gedit bios.txt")
+
+def option_seven():
+    dic = pickle_file_load("dic.pickle")
+
+    while True:
+        username = show_saved_profile_images(dic)
+
+        directory = "archive/"+username+'/'+username+"bio.txt"
+        command = "gedit " + directory
+        os.system(command)
+
+        ans = continueQuestionFunction("seeing bio of a user?")
+        if not ans:
+            break
+
+
+
 
 def exit():
     sys.exit()

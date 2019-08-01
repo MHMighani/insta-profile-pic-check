@@ -1,6 +1,6 @@
-#Main file
 from profile import *
 import sys
+import os
 
 #This is for argument passing for fast checking all pages
 #I used this option for fast page checking in my startup
@@ -16,7 +16,8 @@ menuItems = [
     {'Check all users': option_three},
     {'Delete a User': option_four},
     {'See a user\'s profile pic': option_five},
-    {'to see all bio\'s': option_six},
+    {'To see all bio\'s': option_six},
+    {'To see bio of a user ':option_seven},
     {'Exit' : exit}
 ]
 
