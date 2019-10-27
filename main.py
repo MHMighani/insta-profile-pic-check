@@ -28,6 +28,9 @@ def main():
     if "dic2.pickle" not in os.listdir():
         dic2 = {}
         pickle_file_dump("dic2.pickle",dic2)
+    if "dic3.pickle" not in os.listdir():
+        dic3 = {}
+        pickle_file_dump("dic3.pickle",dic3)
 
     clear_screen()
     fig = Figlet(font='doom')
@@ -37,8 +40,5 @@ def main():
         print("[" + str(menuItems.index(item)) + "]" + list(item.keys())[0])
     choice = int(input(">>"))
     list(menuItems[choice].values())[0]()
-
-
-
 
 main()

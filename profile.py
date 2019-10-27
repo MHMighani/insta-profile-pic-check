@@ -26,21 +26,53 @@ def pickle_file_dump(name, dic):
 
 
 def get_url(username):
-    url = "https://www.instagram.com/" + username + '/'
-    r = requests.get(url)
-    soup = BeautifulSoup(r.content, "lxml")
-    scripts = soup.find_all('script', type="text/javascript",
-                            text=re.compile('window._sharedData'))
-    stringified_json = scripts[0].get_text().replace(
-        'window._sharedData = ', '')[:-1]
+    url = "https://www.instagram.com/" + username + '/?__a=1'
+    try:
+        r = requests.get(url)
+    except:
+        print("\ncheck your internet connection please\n")
+        return
 
-    dic_file = (json.loads(stringified_json)['entry_data']['ProfilePage'][0])
+    requesContent = r.json()
+    userInformation = requesContent["graphql"]["user"]
+    isPrivateStatus = userInformation["is_private"]
+    hdProfilePicUrl = userInformation["profile_pic_url_hd"]
+    bioText = userInformation["biography"]
+    externalSiteLink = userInformation["external_url"]
 
-    profilePicLinkAddress = (dic_file["graphql"]["user"]["profile_pic_url_hd"])
+    if externalSiteLink:
+        bioText = bioText + "\n\n" + externalSiteLink
 
-    userBio = (dic_file["graphql"]["user"]["biography"])
-    return profilePicLinkAddress,userBio
-    # return dic_file
+    checkPrivateOrPublicStatus(username,isPrivateStatus)
+
+    return hdProfilePicUrl,bioText
+
+
+def checkPrivateOrPublicStatus(username,new_status):
+    dic = pickle_file_load("dic3.pickle")
+    keys = list(dic.keys())
+    if username not in keys:
+        dic[username] = new_status
+        pickle_file_dump("dic3.pickle",dic)
+        print("privacy status added for %s "%username)
+        return
+
+    old_status = dic[username]
+
+    if old_status!=new_status:
+        dic[username] = new_status
+        if new_status:
+            message = "private"
+        else:
+            message = "public"
+        pickle_file_dump("dic3.pickle",dic)        
+
+        warningMessage = "\n"+"*"*5+"---- important ----"+"*"*5+"\n"
+        mainMessage = "this user is no longer %s---> %s"%(message,username) 
+        print(warningMessage + mainMessage +warningMessage)                
+
+    
+        
 
 
 def save_profile_image(username, a_website, directory=""):
@@ -224,8 +256,8 @@ def option_three():
     old_dic = pickle_file_load("dic.pickle")
     for username in old_dic:
         try:
-            # print(username)
             (a_website,newBioText) = get_url(username)
+
             old_url = old_dic[username]
             result = check_profile_image_change(username, old_url, a_website)
             if check_profile_image_change(username, old_url, a_website):
@@ -233,11 +265,12 @@ def option_three():
                 save_profile_url(username, a_website, old_dic)
                 archive = Archive(username)
                 archive.archive_profile_image()
+            bioGetFunction(username,newBioText)
         except IndexError:
             print("%s doesn't have profile pic"%username)
         except:
             print("%s username has probably changed"%username)
-        bioGetFunction(username,newBioText)
+        
 
 
 def option_four():
