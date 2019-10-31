@@ -2,7 +2,6 @@ import os
 import pickle
 import urllib.request
 from lxml import html
-from bs4 import BeautifulSoup
 import webbrowser
 from pyfiglet import Figlet
 import re
@@ -47,7 +46,7 @@ def get_url(username):
 
     return hdProfilePicUrl,bioText
 
-
+#this function checks whether the privacy status of a user is changed or not
 def checkPrivateOrPublicStatus(username,new_status):
     dic = pickle_file_load("dic3.pickle")
     keys = list(dic.keys())
@@ -62,9 +61,9 @@ def checkPrivateOrPublicStatus(username,new_status):
     if old_status!=new_status:
         dic[username] = new_status
         if new_status:
-            message = "private"
-        else:
             message = "public"
+        else:
+            message = "privae"
         pickle_file_dump("dic3.pickle",dic)        
 
         warningMessage = "\n"+"*"*5+"---- important ----"+"*"*5+"\n"
@@ -72,9 +71,6 @@ def checkPrivateOrPublicStatus(username,new_status):
         print(warningMessage + mainMessage +warningMessage)                
 
     
-        
-
-
 def save_profile_image(username, a_website, directory=""):
     if directory != "":
         save_adress = directory + "/" + username
