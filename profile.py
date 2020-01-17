@@ -159,12 +159,9 @@ class Archive():
 
 
 def get_image_adress(url):
-
-    url_list = url.split('/')[8].split('_')[0:3]
-    image_string = ""
-    for string in url_list:
-        image_string += string
-    return image_string
+    splitedUrl = url.split("/")
+    imageName = splitedUrl[len(splitedUrl)-1].split(".")[0]
+    return imageName
 
 
 def clear_screen():
